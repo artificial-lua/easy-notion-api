@@ -1,0 +1,29 @@
+{
+  "name": "easy-notion-api",
+  "version": "0.0.1",
+  "description": "for easy use notion api",
+  "main": "index.js",
+  "keywords": [
+    "notion",
+    "api"
+  ],
+  "scripts": {
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/artificial-lua/easy-notion-api.git"
+  },
+  "author": "artificialluamail@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/artificial-lua/easy-notion-api/issues"
+  },
+  "homepage": "https://github.com/artificial-lua/easy-notion-api#readme",
+  "dependencies": {
+    "@notionhq/client": "^2.2.3"
+  },
+  "devDependencies": {
+    "typescript": "^4.9.4"
+  }
+}
