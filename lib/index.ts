@@ -1,7 +1,6 @@
 // import modules
 import { Client } from "@notionhq/client"
 import { CreatePageParameters, CreatePageResponse } from '@notionhq/client/build/src/api-endpoints'
-import { DatabaseColumnsType } from './types';
 
 type NotionAPIResult = { result: 'error' | 'success', message?: string }
 
@@ -18,7 +17,7 @@ export interface CreateData {
 export default class NotionAPI {
     private notion:Client
     private databaseId: string
-    private columns: DatabaseColumnsType
+    private columns: any
 
     constructor(integrationKey:string, databaseId:string) {
         this.notion = new Client({ auth: integrationKey })
@@ -35,7 +34,7 @@ export default class NotionAPI {
         try {
             const response = await this.notion.databases.retrieve({ database_id: this.databaseId })
 
-            const result:DatabaseColumnsType = {}
+            const result:any = {}
 
             Object.keys(response.properties).forEach(key => {
                 result[key] = response.properties[key]
@@ -50,7 +49,7 @@ export default class NotionAPI {
         }
     }
 
-    async getColumns(): Promise<DatabaseColumnsType | null> {
+    async getColumns(): Promise<any> {
         if (Object.keys(this.columns).length === 0) {
             return this.getDatabaseColumns()
         }
