@@ -9,11 +9,7 @@ type WithAuth<P> = P & {
     auth?: string;
 };
 
-type objectType = {
-    [key: string]: string | number | boolean
-}
-
-export type createDataType = WithAuth<CreatePageParameters>
+export type CreatePageParametersData = WithAuth<CreatePageParameters>
 
 export interface CreateData {
     [key: string]: string | number | boolean | string[],
@@ -47,42 +43,138 @@ export default class NotionAPI {
 
             this.columns = result
 
-            return true
+            return this.columns
         } catch (error) {
             console.error(error)
-            return false
+            return null
         }
     }
 
-    getColumns(): DatabaseColumnsType {
-        return this.columns   
+    async getColumns(): Promise<DatabaseColumnsType | null> {
+        if (Object.keys(this.columns).length === 0) {
+            return this.getDatabaseColumns()
+        }
+        return this.columns
     }
 
-    makeCreateData(createData: CreateData): createDataType {
-        const properties: any = {}
-
+    makeCreateData(createData: CreateData): CreatePageParametersData {
+        const returnData: CreatePageParametersData = {
+            parent: { database_id: this.databaseId },
+            properties: {}
+        }
+        
         Object.keys(createData).forEach(key => {
-            properties[key] = {
-                type: this.columns[key].type,
-                id: this.columns[key].id,
-                name: key,
-                [this.columns[key].type]: [{
-                    [this.columns[key].type]: createData[key]
-                }]
+            if (key in this.columns) {
+                const column = this.columns[key]
+                const value = createData[key]
+
+                switch (column.type) {
+                    case 'title':
+                        returnData.properties[key] = {
+                            title: [
+                                {
+                                    text: {
+                                        content: value as string
+                                    }
+                                }
+                            ]
+                        }
+                        break
+                    case 'rich_text':
+                        returnData.properties[key] = {
+                            rich_text: [
+                                {
+                                    text: {
+                                        content: value as string
+                                    }
+                                }
+                            ]
+                        }
+                        break
+                    case 'number':
+                        returnData.properties[key] = {
+                            number: value as number
+                        }
+                        break
+                    case 'url':
+                        returnData.properties[key] = {
+                            url: value as string
+                        }
+                        break
+                    case 'select':
+                        returnData.properties[key] = {
+                            select: {
+                                name: value as string
+                            }
+                        }
+                        break
+                    case 'multi_select':
+                        returnData.properties[key] = {
+                            multi_select: (value as string[]).map((item) => {
+                                return {
+                                    name: item
+                                }
+                            })
+                        }
+                        break
+                    case 'people':
+                        // returnData.properties[key] = {
+                        //     people: (value as string[]).map((item) => {
+                        //         return {
+                        //             id: item
+                        //         }
+                        //     })
+                        // }
+                        throw new Error(`${column.type} is not supported yet.`)
+                        break
+                    case 'email':
+                        returnData.properties[key] = {
+                            email: value as string
+                        }
+                        break
+                    case 'phone_number':
+                        returnData.properties[key] = {
+                            phone_number: value as string
+                        }
+                        break
+                    case 'date':
+                        returnData.properties[key] = {
+                            date: {
+                                start: value as string
+                            }
+                        }
+                        break
+                    case 'checkbox':
+                        returnData.properties[key] = {
+                            checkbox: value as boolean
+                        }
+                        break
+                    case 'status':
+                        returnData.properties[key] = {
+                            name: value as string
+                        }
+                        break
+                    default:
+                        throw new Error(`${column.type} is not supported yet.`)
+                        break
+                }
             }
         })
 
-        return {
-            parent: { database_id: this.databaseId },
-            properties: {
-                ...properties
-            }
-        }
+        return returnData
     }
 
-    addDatabaseRow(data: createDataType | CreateData): Promise<NotionAPIResult> {
+    async addDatabaseRow(data: CreatePageParametersData | CreateData, debug: boolean = false): Promise<NotionAPIResult> {
+        if (!await this.getColumns()) {
+            throw new Error('Database columns is not found.')
+        }
+
         // if data type is CreateData, convert to createDataType
-        const convertData: createDataType = ('parent' in data) ? data as createDataType : this.makeCreateData(data as CreateData)
+        const convertData: CreatePageParametersData = ('parent' in data) ? data as CreatePageParametersData : this.makeCreateData(data as CreateData)
+        
+        if (debug) {
+            console.log(convertData)
+        }
 
         return new Promise((resolve, reject) => {
             try {
