@@ -117,6 +117,7 @@ export default class NotionAPI {
                         }
                         break
                     case 'people':
+                        // TODO
                         // returnData.properties[key] = {
                         //     people: (value as string[]).map((item) => {
                         //         return {
