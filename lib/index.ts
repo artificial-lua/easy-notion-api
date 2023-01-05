@@ -14,15 +14,16 @@ export interface CreateData {
     [key: string]: string | number | boolean | string[],
 }
 
-export default class NotionAPI {
+export class DatabaseAPI {
     private notion:Client
     private databaseId: string
     private columns: any
 
     constructor(integrationKey:string, databaseId:string) {
-        this.notion = new Client({ auth: integrationKey })
-        this.databaseId = databaseId
-        this.columns = {}
+        this.notion = new Client({ auth: integrationKey });
+        this.databaseId = databaseId;
+        this.columns = {};
+        this.getDatabaseColumns()
     }
     
     async setDatabaseId(databaseId: string) {
@@ -197,4 +198,8 @@ export default class NotionAPI {
             }
         })
     }
+}
+
+export default {
+    DatabaseAPI
 }
