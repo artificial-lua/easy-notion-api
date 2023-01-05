@@ -3,7 +3,7 @@ for easy notion api
 
 ## How to use
 ``` javascript
-const conn = new EasyNotion('Your secret key', 'Your page ID')
+const conn = new EasyNotion.DatabaseAPI('Your secret key', 'Your page ID')
 
 const sendData = await conn.addDatabaseRow({
     'Name': 'Test',

@@ -1,6 +1,6 @@
 {
   "name": "easy-notion-api",
-  "version": "0.1.2",
+  "version": "0.1.2-readme",
   "description": "for easy use notion api",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
